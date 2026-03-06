@@ -1,0 +1,3 @@
+[saml]
+host = "smtp.gmail.com"
+port = 12345
