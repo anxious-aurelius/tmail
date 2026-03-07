@@ -31,8 +31,8 @@ to quickly create a Cobra application.`,
 		to := []string{"krupalparsekar3@gmail.com"}
 		err = smtp.Send(fetchedConfig, mail.Message{
 			To:      to,
-			Subject: "test",
-			Body:    "this is a test message",
+			Subject: "test 123",
+			Body:    "this is a test message 1234",
 		})
 		if err != nil {
 			fmt.Println(err)
