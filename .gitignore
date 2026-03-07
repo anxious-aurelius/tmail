@@ -32,4 +32,4 @@ Thumbs.db
 tmp/
 
 #temporarily adding toml to config
-*.toml
+config.toml
