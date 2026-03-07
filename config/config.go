@@ -1,8 +1,6 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/BurntSushi/toml"
 )
 
@@ -14,12 +12,12 @@ type Saml struct {
 	Port int    `toml:"port"`
 }
 
-func LoadConfig() {
+func LoadConfig() (*Config, error) {
 	var config Config
 	var path = "config.toml"
 	_, err := toml.DecodeFile(path, &config)
 	if err != nil {
-		fmt.Println("Error:", err)
+		return nil, err
 	}
-	fmt.Print(config)
+	return &config, nil
 }
