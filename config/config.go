@@ -16,6 +16,7 @@ type Smtp struct {
 
 func LoadConfig() (*Config, error) {
 	var config Config
+	//TODO: need to change the path to home directory once packaged into a executable
 	var path = "config.toml"
 	_, err := toml.DecodeFile(path, &config)
 	if err != nil {

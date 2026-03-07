@@ -27,6 +27,7 @@ to quickly create a Cobra application.`,
 		fetchedConfig, err := config.LoadConfig()
 		if err != nil {
 			fmt.Print(err)
+			return
 		}
 		to := []string{"krupalparsekar3@gmail.com"}
 		err = smtp.Send(fetchedConfig, mail.Message{
