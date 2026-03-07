@@ -5,11 +5,13 @@ import (
 )
 
 type Config struct {
-	SamlConfig Saml `toml:"saml"`
+	SmtpConfig Smtp `toml:"smtp"`
 }
-type Saml struct {
-	Host string `toml:"host"`
-	Port int    `toml:"port"`
+type Smtp struct {
+	Host     string `toml:"host"`
+	Port     int    `toml:"port"`
+	Username string `toml:"username"`
+	Password string `toml:"password"`
 }
 
 func LoadConfig() (*Config, error) {

@@ -6,6 +6,9 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/anxious-aurelius/tmail/config"
+	"github.com/anxious-aurelius/tmail/internal/mail"
+	"github.com/anxious-aurelius/tmail/internal/smtp"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +23,20 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("send command - not yet implemented")
+		fmt.Println("send command - implementation inprogess")
+		fetchedConfig, err := config.LoadConfig()
+		if err != nil {
+			fmt.Print(err)
+		}
+		to := []string{"krupalparsekar3@gmail.com"}
+		err = smtp.Send(fetchedConfig, mail.Message{
+			To:      to,
+			Subject: "test",
+			Body:    "this is a test message",
+		})
+		if err != nil {
+			fmt.Println(err)
+		}
 	},
 }
 
