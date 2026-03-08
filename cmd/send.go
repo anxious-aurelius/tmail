@@ -30,7 +30,7 @@ to quickly create a Cobra application.`,
 			return
 		}
 		to := []string{"krupalparsekar3@gmail.com"}
-		err = smtp.Send(fetchedConfig, mail.Message{
+		err = smtp.SendMail(fetchedConfig, mail.Message{
 			To:      to,
 			Subject: "test 123",
 			Body:    "this is a test message 1234",

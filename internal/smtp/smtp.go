@@ -10,7 +10,7 @@ import (
 	"github.com/anxious-aurelius/tmail/internal/mail"
 )
 
-func Send(cfg *config.Config, msg mail.Message) error {
+func SendMail(cfg *config.Config, msg mail.Message) error {
 	message := fmt.Sprintf(
 		"From: %s\r\n"+
 			"To: %s\r\n"+
