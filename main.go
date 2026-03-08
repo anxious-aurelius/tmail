@@ -1,6 +1,5 @@
 /*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-
+Copyright © 2026 Kripal Parsekar kripalparsekar@gmail.com
 */
 package main
 
