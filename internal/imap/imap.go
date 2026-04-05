@@ -20,12 +20,14 @@ func ListEvelopes(n int, cfg *config.Config) ([]mail.Envelope, error) {
 
 	if err != nil {
 		fmt.Println("Couldn't connect to the IMAP server")
+		return nil, err
 	}
 	fmt.Println("Connection succesfully")
 
 	fmt.Println("Logging in...")
 	if err = conn.Login(cfg.ImapConfig.Username, cfg.ImapConfig.Password); err != nil {
-		fmt.Println("Error when logging in")
+		fmt.Println("Error logging in")
+		return nil, err
 	}
 	fmt.Println("Successfully logged in")
 
@@ -35,6 +37,7 @@ func ListEvelopes(n int, cfg *config.Config) ([]mail.Envelope, error) {
 	selectedMB, err := conn.Select("INBOX", true)
 	if err != nil {
 		fmt.Println("Error selecting mailbox")
+		return nil, err
 	}
 
 	// if mailbox size is greater than the requested list size. just return the last n envelopes
@@ -57,8 +60,30 @@ func ListEvelopes(n int, cfg *config.Config) ([]mail.Envelope, error) {
 
 	log.Println("Fetching mails from the mail server.")
 
+	envelopes := []mail.Envelope{}
+
 	for msg := range message {
-		fmt.Println("* " + msg.Envelope.Subject)
+
+		tempFrom := []*mail.Address{}
+
+		for _, address := range msg.Envelope.From {
+			temp := mail.Address{
+				HostName:     address.HostName,
+				MailboxName:  address.MailboxName,
+				PersonalName: address.PersonalName,
+			}
+			tempFrom = append(tempFrom, &temp)
+		}
+
+		temp := mail.Envelope{
+			Date:    msg.Envelope.Date,
+			Subject: msg.Envelope.Subject,
+			From:    tempFrom,
+		}
+
+		envelopes = append(envelopes, temp)
+
 	}
-	return nil, nil
+
+	return envelopes, nil
 }

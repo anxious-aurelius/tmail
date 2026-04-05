@@ -4,7 +4,9 @@ Copyright © 2026 Kripal Parsekar kripalparsekar@gmail.com
 package cmd
 
 import (
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/anxious-aurelius/tmail/config"
 	"github.com/anxious-aurelius/tmail/internal/imap"
@@ -28,10 +30,20 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			log.Fatal(err)
 		}
-		_, err = imap.ListEvelopes(n, cfg)
+		envelopes, err := imap.ListEvelopes(n, cfg)
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Println()
+		for _, envelope := range envelopes {
+			addressString := ""
+			for _, address := range envelope.From {
+				addressString += address.PersonalName + address.HostName + ","
+			}
+			addressString = addressString[:len(addressString)-1]
+			fmt.Printf("%v : %v : %v\n", envelope.Date.Format(time.DateTime), addressString, envelope.Subject)
+		}
+		fmt.Println()
 	},
 }
 
