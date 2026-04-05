@@ -12,6 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var to []string
+var subject string
+var body string
+
 // sendCmd represents the send command
 var sendCmd = &cobra.Command{
 	Use:   "send",
@@ -23,17 +27,39 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("send command - implementation inprogess")
+		fmt.Println("Sending Email")
 		fetchedConfig, err := config.LoadConfig()
 		if err != nil {
 			fmt.Print(err)
 			return
 		}
-		to := []string{"krupalparsekar3@gmail.com"}
+
+		if to == nil {
+			fmt.Println("Enter the email address. Enter q to quit")
+			for true {
+				var temp string
+				fmt.Scanf("Email Address : %s", temp)
+				if temp == "q" {
+					break
+				}
+				to = append(to, temp)
+			}
+		}
+
+		if subject == "" {
+			fmt.Println("Enter the email subject")
+			fmt.Scanf("Subject : %s", subject)
+		}
+
+		if body == "" {
+			fmt.Println("Enter the email body")
+			fmt.Scanf("Body : \n %s ", body)
+		}
+
 		err = smtp.SendMail(fetchedConfig, mail.Message{
 			To:      to,
-			Subject: "test 123",
-			Body:    "this is a test message 1234",
+			Subject: subject,
+			Body:    body,
 		})
 		if err != nil {
 			fmt.Println(err)
@@ -42,5 +68,9 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
+	sendCmd.Flags().StringSliceVar(&to, "to", nil, "recipient email addresses")
+	sendCmd.Flags().StringVar(&subject, "subj", "", "email subject")
+	sendCmd.Flags().StringVar(&body, "body", "", "email body")
+
 	rootCmd.AddCommand(sendCmd)
 }
