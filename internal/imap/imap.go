@@ -12,7 +12,7 @@ import (
 )
 
 // TLS Handshake -> Login -> Select Folder -> Fetch Messages -> Logout and close connection
-func ListEvelopes(n int, cfg *config.Config) ([]mail.Envelope, error) {
+func ListEnvelopes(n int, cfg *config.Config) ([]mail.Envelope, error) {
 
 	// TLS handshake with IMAP
 	log.Println("Connecting to the server.")
@@ -30,6 +30,8 @@ func ListEvelopes(n int, cfg *config.Config) ([]mail.Envelope, error) {
 		return nil, err
 	}
 	fmt.Println("Successfully logged in")
+
+	defer conn.Logout()
 
 	fmt.Println("Fetching mails from INBOX")
 
