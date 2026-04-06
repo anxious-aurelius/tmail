@@ -84,6 +84,10 @@ func ListEvelopes(n int, cfg *config.Config) ([]mail.Envelope, error) {
 		envelopes = append(envelopes, temp)
 
 	}
+	if err = <-done; err != nil {
+		fmt.Println("Some error occured reading mails from the IMAP server.")
+		return nil, err
+	}
 
 	return envelopes, nil
 }
