@@ -40,6 +40,9 @@ to quickly create a Cobra application.`,
 			for _, address := range envelope.From {
 				addressString += address.PersonalName + address.HostName + ","
 			}
+			if len(addressString) == 0 {
+				addressString = "unknown,"
+			}
 			addressString = addressString[:len(addressString)-1]
 			fmt.Printf("%v : %v : %v\n", envelope.Date.Format(time.DateTime), addressString, envelope.Subject)
 		}
