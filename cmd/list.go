@@ -30,7 +30,7 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			log.Fatal(err)
 		}
-		envelopes, err := imap.ListEvelopes(n, cfg)
+		envelopes, err := imap.ListEnvelopes(n, cfg)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -38,7 +38,7 @@ to quickly create a Cobra application.`,
 		for _, envelope := range envelopes {
 			addressString := ""
 			for _, address := range envelope.From {
-				addressString += address.PersonalName + address.HostName + ","
+				addressString += address.PersonalName + " <" + address.MailboxName + "@" + address.HostName + ">,"
 			}
 			if len(addressString) == 0 {
 				addressString = "unknown,"
