@@ -5,7 +5,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/anxious-aurelius/tmail/config"
+	"github.com/anxious-aurelius/tmail/internal/config"
 	"github.com/anxious-aurelius/tmail/internal/mail"
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
