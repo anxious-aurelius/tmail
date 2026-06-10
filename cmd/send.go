@@ -6,7 +6,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/anxious-aurelius/tmail/config"
+	"github.com/anxious-aurelius/tmail/internal/config"
 	"github.com/anxious-aurelius/tmail/internal/mail"
 	"github.com/anxious-aurelius/tmail/internal/smtp"
 	"github.com/spf13/cobra"
@@ -28,7 +28,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Sending Email")
-		fetchedConfig, err := config.LoadConfig()
+		fetchedConfig, err := config.Load()
 		if err != nil {
 			fmt.Print(err)
 			return

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/anxious-aurelius/tmail/config"
+	"github.com/anxious-aurelius/tmail/internal/config"
 	"github.com/anxious-aurelius/tmail/internal/mail"
 )
 
