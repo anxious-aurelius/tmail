@@ -8,6 +8,7 @@ pkg/
 *.so
 *.dylib
 *.test
+/tmail
 
 # Output of the go coverage tool
 coverage.out
