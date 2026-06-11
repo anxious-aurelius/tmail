@@ -51,6 +51,10 @@ tmail list
 tmail config
 ```
 
+## Architecture
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the package map, dependency rules, and contributor conventions for keeping CLI code separate from mail-domain logic.
+
 ## Project Structure
 
 ```
@@ -60,9 +64,9 @@ tmail/
 │   ├── send.go
 │   ├── list.go
 │   └── config.go
-├── config/               # Config loading and parsing (TOML)
-│   └── config.go
 ├── internal/
+│   ├── config/           # Config loading and parsing (TOML)
+│   │   └── config.go
 │   ├── imap/             # IMAP logic
 │   │   └── imap.go
 │   ├── mail/             # Shared domain types (Message, Envelope, Address)
