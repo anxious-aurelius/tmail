@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/anxious-aurelius/tmail/internal/config"
 	"github.com/anxious-aurelius/tmail/internal/mail"
@@ -36,9 +37,13 @@ to quickly create a Cobra application.`,
 
 		if to == nil {
 			fmt.Println("Enter the email address. Enter q to quit")
-			for true {
+			for {
 				var temp string
-				fmt.Scanf("Email Address : %s", temp)
+				_, err := fmt.Scanf("Email Address : %s", temp)
+				if err != nil {
+					fmt.Printf("Err: %v\n", err)
+					os.Exit(1)
+				}
 				if temp == "q" {
 					break
 				}
@@ -48,12 +53,20 @@ to quickly create a Cobra application.`,
 
 		if subject == "" {
 			fmt.Println("Enter the email subject")
-			fmt.Scanf("Subject : %s", subject)
+			_, err := fmt.Scanf("Subject : %s", subject)
+			if err != nil {
+				fmt.Printf("Err: %v\n", err)
+				os.Exit(1)
+			}
 		}
 
 		if body == "" {
 			fmt.Println("Enter the email body")
-			fmt.Scanf("Body : \n %s ", body)
+			_, err := fmt.Scanf("Body : \n %s ", body)
+			if err != nil {
+				fmt.Printf("Err: %v\n", err)
+				os.Exit(1)
+			}
 		}
 
 		err = smtp.SendMail(fetchedConfig, mail.Message{
