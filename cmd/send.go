@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -16,6 +17,9 @@ import (
 var to []string
 var subject string
 var body string
+
+// defining custom error for send cancel
+var errCancelled = errors.New("send cancelled")
 
 // sendCmd represents the send command
 var sendCmd = &cobra.Command{
@@ -40,7 +44,18 @@ server settings are read from ~/.tmail/config.toml.`,
 		msg, err := collectMessage(cmd.InOrStdin(), cmd.OutOrStderr(), to, subject, body)
 
 		if err != nil {
-			fmt.Fprintf(cmd.OutOrStderr(), "%s", err)
+			// checks custom error triggered on cancelled input
+			if errors.Is(err, errCancelled) {
+				fmt.Fprintf(cmd.OutOrStdout(), "%s\n", err)
+				os.Exit(0)
+			} else {
+				fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
+				os.Exit(1)
+			}
+		}
+
+		if err != nil {
+			fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
 			os.Exit(1)
 		}
 
@@ -48,7 +63,7 @@ server settings are read from ~/.tmail/config.toml.`,
 		err = smtp.SendMail(fetchedConfig, msg)
 
 		if err != nil {
-			fmt.Fprintf(cmd.OutOrStderr(), "%s", err)
+			fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
 			os.Exit(1)
 		}
 
@@ -76,14 +91,27 @@ func collectMessage(r io.Reader, w io.Writer, to []string, subj string, body str
 			if temp == "q" || temp == "Q" {
 				break
 			}
+			temp = strings.TrimSpace(temp)
 			to = append(to, temp)
 		}
 	}
 
-	if subject == "" {
+	if len(to) == 0 {
+		return mail.Message{}, errors.New("collecting send message : there should be atleast one recipient")
+	}
+
+	if subj == "" {
 		fmt.Fprint(w, "Enter the email subject:\n")
 		scanner.Scan()
 		subj = scanner.Text()
+	}
+
+	if subj == "" {
+		fmt.Fprint(w, "Email subject empty, send anyway? [y/N]")
+		scanner.Scan()
+		if scanner.Text() != "y" {
+			return mail.Message{}, errCancelled
+		}
 	}
 
 	if body == "" {
