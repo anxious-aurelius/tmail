@@ -1,8 +1,9 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
-	"os"
+	"strings"
 
 	"github.com/anxious-aurelius/tmail/internal/config"
 	"github.com/anxious-aurelius/tmail/internal/mail"
@@ -33,16 +34,14 @@ server settings are read from ~/.tmail/config.toml.`,
 			return
 		}
 
+		scanner := bufio.NewScanner(cmd.InOrStdin())
+
 		if to == nil {
-			fmt.Println("Enter the email address. Enter q to quit")
-			for {
-				var temp string
-				_, err := fmt.Scanf("Email Address : %s", temp)
-				if err != nil {
-					fmt.Printf("Err: %v\n", err)
-					os.Exit(1)
-				}
-				if temp == "q" {
+			fmt.Println("Enter recipient email id's.")
+			fmt.Println("Press return to continue to the next id and 'q/Q' to exit the loop.")
+			for scanner.Scan() {
+				temp := scanner.Text()
+				if temp == "q" || temp == "Q" {
 					break
 				}
 				to = append(to, temp)
@@ -50,21 +49,20 @@ server settings are read from ~/.tmail/config.toml.`,
 		}
 
 		if subject == "" {
-			fmt.Println("Enter the email subject")
-			_, err := fmt.Scanf("Subject : %s", subject)
-			if err != nil {
-				fmt.Printf("Err: %v\n", err)
-				os.Exit(1)
-			}
+			fmt.Println("Enter the email subject:")
+			scanner.Scan()
+			subject = scanner.Text()
 		}
 
 		if body == "" {
-			fmt.Println("Enter the email body")
-			_, err := fmt.Scanf("Body : \n %s ", body)
-			if err != nil {
-				fmt.Printf("Err: %v\n", err)
-				os.Exit(1)
+			var lines []string
+			fmt.Println("Enter the email body:")
+			for scanner.Scan() {
+				line := scanner.Text()
+				lines = append(lines, line)
 			}
+
+			body = strings.Join(lines, "\n")
 		}
 
 		err = smtp.SendMail(fetchedConfig, mail.Message{
