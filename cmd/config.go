@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/anxious-aurelius/tmail/internal/config"
 	"github.com/spf13/cobra"
@@ -20,13 +21,12 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("config command - not yet implemented")
 		fetchedConfig, err := config.Load()
 		if err != nil {
-			fmt.Println(err)
+			cmd.PrintErrln(err)
+			os.Exit(1)
 		}
 		fmt.Println(fetchedConfig)
-
 	},
 }
 

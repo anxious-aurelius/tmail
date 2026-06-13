@@ -18,9 +18,21 @@ cd tmail
 go build -o tmail .
 ```
 
+After building, move the binary to a directory on your PATH so you can run `tmail` from anywhere:
+
+```bash
+mv tmail /usr/local/bin/
+```
+
 ## Configuration
 
-Create a `config.toml` file in the project root:
+Run the init command to scaffold a config file at `~/.tmail/config.toml`:
+
+```bash
+tmail config init
+```
+
+Then open `~/.tmail/config.toml` and fill in your credentials:
 
 ```toml
 [smtp]
@@ -36,19 +48,20 @@ username = "you@example.com"
 password = "your-password"
 ```
 
-> **Note:** `config.toml` is already in `.gitignore` — keep your credentials out of version control.
-
 ## Usage
 
 ```bash
+# Scaffold your config file (first-time setup)
+tmail config init
+
+# View or debug loaded config
+tmail config
+
 # Send an email
 tmail send
 
 # List emails from your inbox
 tmail list
-
-# View or debug loaded config
-tmail config
 ```
 
 ## Architecture
@@ -63,7 +76,8 @@ tmail/
 │   ├── root.go
 │   ├── send.go
 │   ├── list.go
-│   └── config.go
+│   ├── config.go
+│   └── configInit.go
 ├── internal/
 │   ├── config/           # Config loading and parsing (TOML)
 │   │   └── config.go
@@ -73,20 +87,19 @@ tmail/
 │   │   └── mail.go
 │   └── smtp/             # SMTP send logic
 │       └── smtp.go
-├── main.go
-└── config.toml           # Your local credentials (gitignored)
+└── main.go
 ```
 
 ## Tech Stack
 
-- [Cobra](https://github.com/spf13/cobra) — CLI framework
-- [Bubble Tea](https://github.com/charmbracelet/bubbletea) — TUI framework ( Future Implementation)
-- [go-imap](https://github.com/emersion/go-imap) — IMAP client
-- [BurntSushi/toml](https://github.com/BurntSushi/toml) — Config parsing
+- [Cobra](https://github.com/spf13/cobra): CLI framework
+- [Bubble Tea](https://github.com/charmbracelet/bubbletea): TUI framework (Future Implementation)
+- [go-imap](https://github.com/emersion/go-imap): IMAP client
+- [BurntSushi/toml](https://github.com/BurntSushi/toml): Config parsing
 
 ## Contributing
 
-Contributions are welcome! Feel free to open issues or pull requests. This project follows standard Go conventions and values clean separation of concerns — email logic lives in `internal/`, completely decoupled from the UI layer.
+Contributions are welcome! Feel free to open issues or pull requests. This project follows standard Go conventions and values clean separation of concerns. Email logic lives in `internal/`, completely decoupled from the UI layer.
 
 ## License
 
