@@ -1,6 +1,3 @@
-/*
-Copyright © 2026 Kripal Parsekar kripalparsekar@gmail.com
-*/
 package cmd
 
 import (
@@ -20,7 +17,7 @@ var listCmd = &cobra.Command{
 	Use:   "list [flags]",
 	Short: "List recent messages from your inbox",
 	Long: `Fetch and print the most recent messages in your INBOX over IMAP.
-	
+
 Each line shows the date, sender, and subject. By default the last 10
 messages are shown; use --n to change the count.`,
 	Example: `  tmail list

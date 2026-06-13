@@ -1,6 +1,3 @@
-/*
-Copyright © 2026 Kripal Parsekar kripalparsekar@gmail.com
-*/
 package cmd
 
 import (
