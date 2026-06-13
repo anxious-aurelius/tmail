@@ -1,6 +1,3 @@
-/*
-Copyright © 2026 Kripal Parsekar kripalparsekar@gmail.com
-*/
 package cmd
 
 import (
@@ -17,14 +14,15 @@ var n int
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "list [flags]",
+	Short: "List recent messages from your inbox",
+	Long: `Fetch and print the most recent messages in your INBOX over IMAP.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Each line shows the date, sender, and subject. By default the last 10
+messages are shown; use --n to change the count.`,
+	Example: `  tmail list
+  	tmail list --n 25`,
+
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg, err := config.Load()
 		if err != nil {

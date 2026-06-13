@@ -1,6 +1,3 @@
-/*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -18,6 +15,8 @@ var configInitCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Scaffolds a default configuration file",
 	Long:  `Creates a default configuration file inside ~/.tmail/ with commented placeholders.`,
+	Example: `  tmail config init
+  tmail config init --force`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// setting target path (~/.tmail/)
 		homeDir, err := os.UserHomeDir()
