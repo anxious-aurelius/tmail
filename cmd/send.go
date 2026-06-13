@@ -3,6 +3,8 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 
 	"github.com/anxious-aurelius/tmail/internal/config"
@@ -34,45 +36,22 @@ server settings are read from ~/.tmail/config.toml.`,
 			return
 		}
 
-		scanner := bufio.NewScanner(cmd.InOrStdin())
+		//function call, collects message from stdin
+		msg, err := collectMessage(cmd.InOrStdin(), cmd.OutOrStderr(), to, subject, body)
 
-		if to == nil {
-			fmt.Println("Enter recipient email id's.")
-			fmt.Println("Press return to continue to the next id and 'q/Q' to exit the loop.")
-			for scanner.Scan() {
-				temp := scanner.Text()
-				if temp == "q" || temp == "Q" {
-					break
-				}
-				to = append(to, temp)
-			}
-		}
-
-		if subject == "" {
-			fmt.Println("Enter the email subject:")
-			scanner.Scan()
-			subject = scanner.Text()
-		}
-
-		if body == "" {
-			var lines []string
-			fmt.Println("Enter the email body:")
-			for scanner.Scan() {
-				line := scanner.Text()
-				lines = append(lines, line)
-			}
-
-			body = strings.Join(lines, "\n")
-		}
-
-		err = smtp.SendMail(fetchedConfig, mail.Message{
-			To:      to,
-			Subject: subject,
-			Body:    body,
-		})
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintf(cmd.OutOrStderr(), "%s", err)
+			os.Exit(1)
 		}
+
+		//sends mail
+		err = smtp.SendMail(fetchedConfig, msg)
+
+		if err != nil {
+			fmt.Fprintf(cmd.OutOrStderr(), "%s", err)
+			os.Exit(1)
+		}
+
 	},
 }
 
@@ -82,4 +61,51 @@ func init() {
 	sendCmd.Flags().StringVar(&body, "body", "", "email body")
 
 	rootCmd.AddCommand(sendCmd)
+}
+
+// function collects input from stdin. takes input and output stream as param, along with the command flags
+func collectMessage(r io.Reader, w io.Writer, to []string, subj string, body string) (mail.Message, error) {
+
+	scanner := bufio.NewScanner(r)
+
+	if to == nil {
+		fmt.Fprint(w, "Enter recipient email id's.\n")
+		fmt.Fprint(w, "Press return to continue to the next id and 'q/Q' to exit the loop.\n")
+		for scanner.Scan() {
+			temp := scanner.Text()
+			if temp == "q" || temp == "Q" {
+				break
+			}
+			to = append(to, temp)
+		}
+	}
+
+	if subject == "" {
+		fmt.Fprint(w, "Enter the email subject:\n")
+		scanner.Scan()
+		subj = scanner.Text()
+	}
+
+	if body == "" {
+		var lines []string
+		fmt.Fprint(w, "Enter the email body:\n")
+		for scanner.Scan() {
+			line := scanner.Text()
+			lines = append(lines, line)
+		}
+
+		body = strings.Join(lines, "\n")
+	}
+
+	if err := scanner.Err(); err != nil {
+		return mail.Message{}, fmt.Errorf("collecting send message : %w", err)
+	}
+
+	msg := mail.Message{
+		To:      to,
+		Subject: subj,
+		Body:    body,
+	}
+
+	return msg, nil
 }
