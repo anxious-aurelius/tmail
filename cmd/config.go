@@ -13,13 +13,12 @@ import (
 
 var configCmd = &cobra.Command{
 	Use:   "config",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Show the currently loaded configuration",
+	Long: `Print the SMTP and IMAP settings tmail has loaded from ~/.tmail/config.toml.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Use this to confirm your config file is found and parsed before running send or list.`,
+	Example: `  tmail config`,
+
 	Run: func(cmd *cobra.Command, args []string) {
 		fetchedConfig, err := config.Load()
 		if err != nil {

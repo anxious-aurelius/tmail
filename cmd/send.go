@@ -19,14 +19,15 @@ var body string
 
 // sendCmd represents the send command
 var sendCmd = &cobra.Command{
-	Use:   "send",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "send [flags]",
+	Short: "Send an email over SMTP",
+	Long: `Send an email using the SMTP account in your config file.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Provide the recipients, subject, and body as flags. Credentials and
+server settings are read from ~/.tmail/config.toml.`,
+	Example: `  tmail send --to alice@example.com --subj "Lunch" --body "12:30 work?"
+  tmail send --to a@example.com --to b@example.com --subj "Hi" --body "Hello both"`,
+
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Sending Email")
 		fetchedConfig, err := config.Load()
