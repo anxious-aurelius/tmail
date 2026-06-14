@@ -26,6 +26,30 @@ type Imap struct {
 	Password string `toml:"password"`
 }
 
+func (cfg Config) String() string {
+	output := `Current Configuration
+[smtp]     
+host = %s
+port = %d                                          
+username = %s
+password = "*******************"
+[imap]
+host = %s
+port = %d
+username = %s
+password = "*******************"
+	`
+	output = fmt.Sprintf(output,
+		cfg.SmtpConfig.Host,
+		cfg.SmtpConfig.Port,
+		cfg.SmtpConfig.Username,
+		cfg.ImapConfig.Host,
+		cfg.ImapConfig.Port,
+		cfg.ImapConfig.Username,
+	)
+	return output
+}
+
 // Loads config into memory
 func Load() (*Config, error) {
 	var config Config
