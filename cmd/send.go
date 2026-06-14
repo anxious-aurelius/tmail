@@ -36,8 +36,8 @@ server settings are read from ~/.tmail/config.toml.`,
 		fmt.Println("Sending Email")
 		fetchedConfig, err := config.Load()
 		if err != nil {
-			fmt.Print(err)
-			return
+			fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
+			os.Exit(1)
 		}
 
 		//function call, collects message from stdin
@@ -54,6 +54,10 @@ server settings are read from ~/.tmail/config.toml.`,
 			}
 		}
 
+		if err = msg.ValidateMessage(); err != nil {
+			fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
+			os.Exit(1)
+		}
 		//sends mail
 		err = smtp.SendMail(fetchedConfig, msg)
 
@@ -84,7 +88,7 @@ func collectMessage(r io.Reader, w io.Writer, to []string, subj string, body str
 		for scanner.Scan() {
 			temp := scanner.Text()
 			temp = strings.TrimSpace(temp)
-			if temp == ""{
+			if temp == "" {
 				continue
 			}
 			if temp == "q" || temp == "Q" {
@@ -92,10 +96,6 @@ func collectMessage(r io.Reader, w io.Writer, to []string, subj string, body str
 			}
 			to = append(to, temp)
 		}
-	}
-
-	if len(to) == 0 {
-		return mail.Message{}, errors.New("collecting send message : there should be atleast one recipient")
 	}
 
 	if subj == "" {

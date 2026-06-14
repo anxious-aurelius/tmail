@@ -1,6 +1,11 @@
 package mail
 
-import "time"
+import (
+	"errors"
+	"fmt"
+	"net/mail"
+	"time"
+)
 
 type Message struct {
 	// Recipient Emails
@@ -31,4 +36,21 @@ type Address struct {
 	MailboxName string
 	// The host name.
 	HostName string
+}
+
+func (msg Message) ValidateMessage() error {
+
+	if len(msg.To) == 0 {
+		return errors.New("validate message: there should be atleast one recipient")
+	}
+
+	for _, to := range msg.To {
+		_, err := mail.ParseAddress(to)
+		if err != nil {
+			return fmt.Errorf("input %s is not a valid email address : %w", to, err)
+		}
+	}
+
+	return nil
+
 }
