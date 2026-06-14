@@ -34,3 +34,6 @@ tmp/
 
 #temporarily adding toml to config
 config.toml
+
+#text file used for test content
+*.txt

@@ -1,8 +1,12 @@
 package cmd
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 
 	"github.com/anxious-aurelius/tmail/internal/config"
 	"github.com/anxious-aurelius/tmail/internal/mail"
@@ -13,6 +17,9 @@ import (
 var to []string
 var subject string
 var body string
+
+// defining custom error for send cancel
+var errCancelled = errors.New("send cancelled")
 
 // sendCmd represents the send command
 var sendCmd = &cobra.Command{
@@ -29,52 +36,36 @@ server settings are read from ~/.tmail/config.toml.`,
 		fmt.Println("Sending Email")
 		fetchedConfig, err := config.Load()
 		if err != nil {
-			fmt.Print(err)
-			return
+			fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
+			os.Exit(1)
 		}
 
-		if to == nil {
-			fmt.Println("Enter the email address. Enter q to quit")
-			for {
-				var temp string
-				_, err := fmt.Scanf("Email Address : %s", temp)
-				if err != nil {
-					fmt.Printf("Err: %v\n", err)
-					os.Exit(1)
-				}
-				if temp == "q" {
-					break
-				}
-				to = append(to, temp)
-			}
-		}
+		//function call, collects message from stdin
+		msg, err := collectMessage(cmd.InOrStdin(), cmd.OutOrStderr(), to, subject, body)
 
-		if subject == "" {
-			fmt.Println("Enter the email subject")
-			_, err := fmt.Scanf("Subject : %s", subject)
-			if err != nil {
-				fmt.Printf("Err: %v\n", err)
-				os.Exit(1)
-			}
-		}
-
-		if body == "" {
-			fmt.Println("Enter the email body")
-			_, err := fmt.Scanf("Body : \n %s ", body)
-			if err != nil {
-				fmt.Printf("Err: %v\n", err)
-				os.Exit(1)
-			}
-		}
-
-		err = smtp.SendMail(fetchedConfig, mail.Message{
-			To:      to,
-			Subject: subject,
-			Body:    body,
-		})
 		if err != nil {
-			fmt.Println(err)
+			// checks custom error triggered on cancelled input
+			if errors.Is(err, errCancelled) {
+				fmt.Fprintf(cmd.OutOrStdout(), "%s\n", err)
+				os.Exit(0)
+			} else {
+				fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
+				os.Exit(1)
+			}
 		}
+
+		if err = msg.ValidateMessage(); err != nil {
+			fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
+			os.Exit(1)
+		}
+		//sends mail
+		err = smtp.SendMail(fetchedConfig, msg)
+
+		if err != nil {
+			fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
+			os.Exit(1)
+		}
+
 	},
 }
 
@@ -84,4 +75,64 @@ func init() {
 	sendCmd.Flags().StringVar(&body, "body", "", "email body")
 
 	rootCmd.AddCommand(sendCmd)
+}
+
+// function collects input from stdin. takes input and output stream as param, along with the command flags
+func collectMessage(r io.Reader, w io.Writer, to []string, subj string, body string) (mail.Message, error) {
+
+	scanner := bufio.NewScanner(r)
+
+	if to == nil {
+		fmt.Fprint(w, "Enter recipient email id's.\n")
+		fmt.Fprint(w, "Press return to continue to the next id and 'q/Q' to exit the loop.\n")
+		for scanner.Scan() {
+			temp := scanner.Text()
+			temp = strings.TrimSpace(temp)
+			if temp == "" {
+				continue
+			}
+			if temp == "q" || temp == "Q" {
+				break
+			}
+			to = append(to, temp)
+		}
+	}
+
+	if subj == "" {
+		fmt.Fprint(w, "Enter the email subject:\n")
+		scanner.Scan()
+		subj = scanner.Text()
+	}
+
+	if subj == "" {
+		fmt.Fprint(w, "Email subject empty, send anyway? [y/N]")
+		scanner.Scan()
+		choice := scanner.Text()
+		if choice != "y" && choice != "yes" {
+			return mail.Message{}, errCancelled
+		}
+	}
+
+	if body == "" {
+		var lines []string
+		fmt.Fprint(w, "Enter the email body:\n")
+		for scanner.Scan() {
+			line := scanner.Text()
+			lines = append(lines, line)
+		}
+
+		body = strings.Join(lines, "\n")
+	}
+
+	if err := scanner.Err(); err != nil {
+		return mail.Message{}, fmt.Errorf("collecting send message : %w", err)
+	}
+
+	msg := mail.Message{
+		To:      to,
+		Subject: subj,
+		Body:    body,
+	}
+
+	return msg, nil
 }
