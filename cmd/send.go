@@ -54,11 +54,6 @@ server settings are read from ~/.tmail/config.toml.`,
 			}
 		}
 
-		if err != nil {
-			fmt.Fprintf(cmd.OutOrStderr(), "%s\n", err)
-			os.Exit(1)
-		}
-
 		//sends mail
 		err = smtp.SendMail(fetchedConfig, msg)
 
@@ -88,10 +83,13 @@ func collectMessage(r io.Reader, w io.Writer, to []string, subj string, body str
 		fmt.Fprint(w, "Press return to continue to the next id and 'q/Q' to exit the loop.\n")
 		for scanner.Scan() {
 			temp := scanner.Text()
+			temp = strings.TrimSpace(temp)
+			if temp == ""{
+				continue
+			}
 			if temp == "q" || temp == "Q" {
 				break
 			}
-			temp = strings.TrimSpace(temp)
 			to = append(to, temp)
 		}
 	}
@@ -109,7 +107,8 @@ func collectMessage(r io.Reader, w io.Writer, to []string, subj string, body str
 	if subj == "" {
 		fmt.Fprint(w, "Email subject empty, send anyway? [y/N]")
 		scanner.Scan()
-		if scanner.Text() != "y" {
+		choice := scanner.Text()
+		if choice != "y" && choice != "yes" {
 			return mail.Message{}, errCancelled
 		}
 	}
